@@ -19,6 +19,7 @@
     "next": "latest",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
+    "react-tiny-link": "^3.6.1",
     "styled-components": "^5.0.0",
     "tmi.js": "^1.7.5",
     "url-parse": "^1.5.1"
