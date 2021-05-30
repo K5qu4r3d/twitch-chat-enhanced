@@ -42,8 +42,6 @@ export interface Chat {
 }
 
 export const Home = ({ thumbnailUrl }: IHomeProps): React.ReactElement => {
-  console.log(`thumbnailUrl: ${thumbnailUrl}`);
-  
   const router = useRouter()
   const { streamername }: any = router.query
   const [messages, setMesssages] = useState<Chat[]>([]);
@@ -118,7 +116,7 @@ export const Home = ({ thumbnailUrl }: IHomeProps): React.ReactElement => {
   return (
     <div>
       <Container>
-        <ChatMessage messages={messages} />
+        <ChatMessage messages={messages} thumbnailUrl={thumbnailUrl} />
       </Container>
       <div ref={bottomDivRef}></div>
     </div>
