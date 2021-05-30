@@ -8,36 +8,32 @@ import { imgSearch } from '../src/utils/images'
 import ChatMessage from './ChatMessage';
 
 import TwitchApi from 'node-twitch';
-import { GetStaticProps, GetStaticPaths } from 'next';
+import { GetServerSideProps } from 'next';
 
 interface IHomeProps {
   thumbnailUrl: string
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { params } = context;
+
   const twitch = new TwitchApi({
     client_id: `${process.env.CLIENT_ID}`,
     client_secret: `${process.env.CLIENT_SECRET}`
   });
+
+  let thumbnailUrl = '';
   
-  const stream = await twitch.getStreams({ channel: 'jinritv' });
-  const thumbnail = stream.data[0].thumbnail_url;
+  if (params && typeof params.streamername === 'string') {
+    const { data } = await twitch.getStreams({ channel: params.streamername });
 
-  return {
-    props: {
-      thumbnailUrl: thumbnail
-    }
-  };
-}
-
-/* export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [
-      { params: { streamername: '' } }
-    ],
-    fallback: true
+    thumbnailUrl = data[0].thumbnail_url;
   }
-} */
+
+  return {
+    props: { thumbnailUrl: thumbnailUrl }
+  };
+};
 
 export interface Chat {
   tags: ChatUserstate;
@@ -46,7 +42,7 @@ export interface Chat {
 }
 
 export const Home = ({ thumbnailUrl }: IHomeProps): React.ReactElement => {
-  console.log(thumbnailUrl);
+  console.log(`thumbnailUrl: ${thumbnailUrl}`);
   
   const router = useRouter()
   const { streamername }: any = router.query
