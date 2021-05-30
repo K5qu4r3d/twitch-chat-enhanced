@@ -7,13 +7,47 @@ import find from 'lodash.find';
 import { imgSearch } from '../src/utils/images'
 import ChatMessage from './ChatMessage';
 
+import TwitchApi from 'node-twitch';
+import { GetStaticProps, GetStaticPaths } from 'next';
+
+interface IHomeProps {
+  thumbnailUrl: string
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  const twitch = new TwitchApi({
+    client_id: `${process.env.CLIENT_ID}`,
+    client_secret: `${process.env.CLIENT_SECRET}`
+  });
+  
+  const stream = await twitch.getStreams({ channel: 'jinritv' });
+  const thumbnail = stream.data[0].thumbnail_url;
+
+  return {
+    props: {
+      thumbnailUrl: thumbnail
+    }
+  };
+}
+
+/* export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [
+      { params: { streamername: '' } }
+    ],
+    fallback: true
+  }
+} */
+
 export interface Chat {
   tags: ChatUserstate;
   message: string;
   media?: string;
 }
 
-export const Home = (): React.ReactElement => {
+export const Home = ({ thumbnailUrl }: IHomeProps): React.ReactElement => {
+  console.log(thumbnailUrl);
+  
   const router = useRouter()
   const { streamername }: any = router.query
   const [messages, setMesssages] = useState<Chat[]>([]);
