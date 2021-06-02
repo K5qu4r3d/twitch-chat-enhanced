@@ -7,41 +7,13 @@ import find from 'lodash.find';
 import { imgSearch } from '../src/utils/images'
 import ChatMessage from './ChatMessage';
 
-import TwitchApi from 'node-twitch';
-import { GetServerSideProps } from 'next';
-
-interface IHomeProps {
-  thumbnailUrl: string
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { params } = context;
-
-  const twitch = new TwitchApi({
-    client_id: `${process.env.CLIENT_ID}`,
-    client_secret: `${process.env.CLIENT_SECRET}`
-  });
-
-  let thumbnailUrl = '';
-  
-  if (params && typeof params.streamername === 'string') {
-    const { data } = await twitch.getStreams({ channel: params.streamername });
-
-    thumbnailUrl = data[0].thumbnail_url;
-  }
-
-  return {
-    props: { thumbnailUrl: thumbnailUrl }
-  };
-};
-
 export interface Chat {
   tags: ChatUserstate;
   message: string;
   media?: string;
 }
 
-export const Home = ({ thumbnailUrl }: IHomeProps): React.ReactElement => {
+export const Home = (): React.ReactElement => {
   const router = useRouter()
   const { streamername }: any = router.query
   const [messages, setMesssages] = useState<Chat[]>([]);
@@ -116,7 +88,7 @@ export const Home = ({ thumbnailUrl }: IHomeProps): React.ReactElement => {
   return (
     <div>
       <Container>
-        <ChatMessage messages={messages} thumbnailUrl={thumbnailUrl} />
+        <ChatMessage messages={messages} />
       </Container>
       <div ref={bottomDivRef}></div>
     </div>

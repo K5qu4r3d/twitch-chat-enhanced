@@ -1,14 +1,21 @@
 import React from 'react';
+import getThumbnails from '../src/utils/GetThumbnails';
 import { Chat } from './[streamername]';
 
 interface IChatmessageProps {
-	messages: Chat[],
-	thumbnailUrl: string
+	messages: Chat[]
 }
 
-const ChatMessage: React.FunctionComponent<IChatmessageProps> = ({ messages, thumbnailUrl }: IChatmessageProps) => {
-	console.log(thumbnailUrl);
-	
+const ChatMessage: React.FunctionComponent<IChatmessageProps> = ({ messages }: IChatmessageProps) => {
+	const usernames = messages.map(message => {
+		const username = message.tags['display-name'];
+
+		return username ? username : '';
+	});
+
+	const thumbnailUrls = getThumbnails(usernames);
+	console.log(thumbnailUrls);
+
 	return (
 		<React.Fragment>
 			{messages.map((x: Chat, i: number) => {
