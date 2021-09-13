@@ -18,8 +18,6 @@ export const Home = (): React.ReactElement => {
   const { streamername }: any = router.query
   const [messages, setMesssages] = useState<Chat[]>([]);
   const [socketClient, setSocketClient] = useState();
-  const [usernames, setUsernames] = useState<string[]>([])
-  const [thumbnailUrls, setThumbnailUrls] = useState<string[]>([]);
 
   const imgRegex = new RegExp('img (.+)', 'i');
   const bottomDivRef = useRef(null);
@@ -74,35 +72,6 @@ export const Home = (): React.ReactElement => {
     }
   }, [socketClient]);
 
-  // fetching thumbnail URLs via node-twitch API calls
-  useEffect(() => {
-    setUsernames(messages.map(message => {
-      const username = message.tags['display-name'];
-  
-      return username ? username : '';
-    }));
-
-    const getThumbnails = async () => {
-      if (usernames.length > 0) {
-        const obj = {
-          usernames: usernames
-        };
-    
-        const response = await fetch('/api/twitch/thumbnailUrls', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(obj)
-        });
-    
-        setThumbnailUrls(await response.json());
-      }
-    };
-
-    getThumbnails();
-  }, [messages]);
-
   const limit = 400;
 
   if (messages.length > limit) {
@@ -112,7 +81,7 @@ export const Home = (): React.ReactElement => {
   return (
     <div>
       <Container>
-        <ChatMessage messages={messages} thumbnailUrls={thumbnailUrls} />
+        <ChatMessage messages={messages} />
       </Container>
       <div ref={bottomDivRef}></div>
     </div>
