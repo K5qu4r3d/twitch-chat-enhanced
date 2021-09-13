@@ -1,34 +1,22 @@
-import express, { Request, Response, Application } from 'express';
+import { Request, Response, Application, Router, json } from 'express';
 import TwitchApi from 'node-twitch';
 
-const router = express.Router();
+const router = Router();
 
-const routes = (app: Application): express.Router => {
-  router.get('/twitch', (_, res: Response) => {
-    res.end("asdf");
-  });
+const routes = (app: Application): Router => {
+  app.use(json());
 
-  router.get('/twitch/:username', async (req: Request, res: Response) => {
-    const username = req.params['username'];
-
+  router.post('/twitch/thumbnailUrls', async (req: Request, res: Response) => {
+    const usernames: string[] = req.body['usernames'];
+    
     const twitch = new TwitchApi({
       client_id: (process.env.CLIENT_ID as string),
       client_secret: (process.env.CLIENT_SECRET as string)
     });
     
-    const users = await twitch.getUsers(username);
+    const users = await twitch.getUsers(usernames);
 
-    console.log(users.data[0]);
-
-    res.end('username endpoint');
-  });
-
-  router.get('/twitch/:usernames', async (req: Request, res: Response) => {
-    const usernames = req.params['usernames'];
-
-    console.log(usernames);
-
-    res.end('usernames endpoint');
+    res.send({ urls: users.data.map(datum => datum.profile_image_url) });
   });
 
   return router;

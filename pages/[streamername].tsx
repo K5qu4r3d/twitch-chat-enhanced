@@ -18,16 +18,17 @@ export const Home = (): React.ReactElement => {
   const { streamername }: any = router.query
   const [messages, setMesssages] = useState<Chat[]>([]);
   const [socketClient, setSocketClient] = useState();
-
+  const [usernames, setUsernames] = useState<string[]>([])
+  const [thumbnailUrls, setThumbnailUrls] = useState<string[]>([]);
 
   const imgRegex = new RegExp('img (.+)', 'i');
   const bottomDivRef = useRef(null);
+
   const scrollToBottom = (): void => {
     if (bottomDivRef !== null) {
       bottomDivRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
 
   useEffect(() => {
     if (streamername !== undefined) {
@@ -42,11 +43,11 @@ export const Home = (): React.ReactElement => {
   }, [streamername]);
 
   useEffect(() => {
-
     if (socketClient !== undefined) {
       socketClient.on('message', (channel: string, tags: ChatUserstate, message: string, self: any) => {
         let merged: Chat = { tags, message };
         const exists: boolean = !!find(messages, merged);
+        
         if (!exists) {
           setMesssages(messages => [...messages, merged])
           scrollToBottom();
@@ -69,15 +70,38 @@ export const Home = (): React.ReactElement => {
 
           })();
         }
-
-
       });
-
     }
-
   }, [socketClient]);
 
-  console.log({ messages });
+  // fetching thumbnail URLs via node-twitch API calls
+  useEffect(() => {
+    setUsernames(messages.map(message => {
+      const username = message.tags['display-name'];
+  
+      return username ? username : '';
+    }));
+
+    const getThumbnails = async () => {
+      if (usernames.length > 0) {
+        const obj = {
+          usernames: usernames
+        };
+    
+        const response = await fetch('/api/twitch/thumbnailUrls', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(obj)
+        });
+    
+        setThumbnailUrls(await response.json());
+      }
+    };
+
+    getThumbnails();
+  }, [messages]);
 
   const limit = 400;
 
@@ -88,7 +112,7 @@ export const Home = (): React.ReactElement => {
   return (
     <div>
       <Container>
-        <ChatMessage messages={messages} />
+        <ChatMessage messages={messages} thumbnailUrls={thumbnailUrls} />
       </Container>
       <div ref={bottomDivRef}></div>
     </div>

@@ -2,16 +2,13 @@ import React from 'react';
 import { Chat } from './[streamername]';
 
 interface IChatmessageProps {
-	messages: Chat[]
+	messages: Chat[],
+	thumbnailUrls: string[]
 }
 
-const ChatMessage: React.FunctionComponent<IChatmessageProps> = ({ messages }: IChatmessageProps) => {
-	const usernames = messages.map(message => {
-		const username = message.tags['display-name'];
-
-		return username ? username : '';
-	});
-
+const ChatMessage: React.FunctionComponent<IChatmessageProps> = (props: IChatmessageProps) => {
+	const { messages, thumbnailUrls } = props;
+	
 	return (
 		<React.Fragment>
 			{messages.map((x: Chat, i: number) => {
